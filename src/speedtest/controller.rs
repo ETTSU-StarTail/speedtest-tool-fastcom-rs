@@ -3,6 +3,14 @@ use playwright::api;
 use std::path::PathBuf;
 
 pub async fn speedtest() -> Result<model::SpeedTestResultValues, playwright::Error> {
+    log::debug!("testing network speed.");
+
+    log::info!("------------- [CAUTION] -----------");
+    log::info!("Trial implement.");
+    log::info!("Launch browser by playwright-rust.");
+    log::info!("And capture full page screenshot.");
+    log::info!("------------- [CAUTION] -----------");
+
     let result: model::SpeedTestResultValues = model::SpeedTestResultValues {
         tested_datetime: chrono::Local::now(),
         download_speed_mega_bps: 0.0,
@@ -21,6 +29,8 @@ pub async fn speedtest() -> Result<model::SpeedTestResultValues, playwright::Err
         .path(PathBuf::from("./log/screenshot.png"))
         .screenshot()
         .await?;
+
+    log::debug!("tested network speed.");
 
     Ok(result)
 }
