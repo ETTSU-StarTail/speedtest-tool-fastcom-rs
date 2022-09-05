@@ -13,7 +13,12 @@ pub async fn setting_browser(
 
     if proxy_url.is_none() {
         log::info!("speedtest without proxy.");
-        browser = browser_type.launcher().headless(true).launch().await?;
+        browser = browser_type
+            .launcher()
+            .channel(api::BrowserChannel::Msedge)
+            .headless(true)
+            .launch()
+            .await?;
     } else {
         log::info!("speedtest with proxy.");
         let proxy_settings: api::ProxySettings = api::ProxySettings {
@@ -25,6 +30,7 @@ pub async fn setting_browser(
 
         browser = browser_type
             .launcher()
+            .channel(api::BrowserChannel::Msedge)
             .headless(true)
             .proxy(proxy_settings)
             .launch()
