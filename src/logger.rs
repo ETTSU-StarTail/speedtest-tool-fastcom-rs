@@ -28,7 +28,7 @@ pub fn init() {
         );
 
     let stdout_config: fern::Dispatch = fern::Dispatch::new()
-        .level(log::LevelFilter::Warn)
+        .level(log::LevelFilter::Info)
         .format(|out, message, record| {
             out.finish(format_args!(
                 "{} {} - {} -> {}",
