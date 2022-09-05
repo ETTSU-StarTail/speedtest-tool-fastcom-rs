@@ -2,14 +2,51 @@ use super::model;
 use playwright::api;
 use std::path::PathBuf;
 
-pub async fn speedtest() -> Result<model::SpeedTestResultValues, playwright::Error> {
-    log::debug!("testing network speed.");
+pub async fn setting_browser(
+    browser_type: &api::BrowserType,
+    proxy_url: Option<String>,
+    proxy_bypass: Option<String>,
+    proxy_username: Option<String>,
+    proxy_password: Option<String>,
+) -> Result<api::Browser, playwright::Error> {
+    let browser: api::Browser;
 
-    log::info!("------------- [CAUTION] -----------");
-    log::info!("Trial implement.");
-    log::info!("Launch browser by playwright-rust.");
-    log::info!("And capture full page screenshot.");
-    log::info!("------------- [CAUTION] -----------");
+    if proxy_url.is_none() {
+        log::info!("speedtest without proxy.");
+        browser = browser_type.launcher().headless(true).launch().await?;
+    } else {
+        log::info!("speedtest with proxy.");
+        let proxy_settings: api::ProxySettings = api::ProxySettings {
+            server: proxy_url.unwrap(),
+            bypass: proxy_bypass,
+            username: proxy_username,
+            password: proxy_password,
+        };
+
+        browser = browser_type
+            .launcher()
+            .headless(true)
+            .proxy(proxy_settings)
+            .launch()
+            .await?;
+    }
+
+    Ok(browser)
+}
+
+pub async fn speedtest(
+    proxy_url: Option<String>,
+    proxy_bypass: Option<String>,
+    proxy_username: Option<String>,
+    proxy_password: Option<String>,
+) -> Result<model::SpeedTestResultValues, playwright::Error> {
+    log::info!("testing network speed.");
+
+    log::warn!("------------- [CAUTION] -----------");
+    log::warn!("Trial implement.");
+    log::warn!("Launch browser by playwright-rust.");
+    log::warn!("And capture full page screenshot.");
+    log::warn!("------------- [CAUTION] -----------");
 
     let result: model::SpeedTestResultValues = model::SpeedTestResultValues {
         tested_datetime: chrono::Local::now(),
@@ -20,7 +57,14 @@ pub async fn speedtest() -> Result<model::SpeedTestResultValues, playwright::Err
     let playwright: playwright::Playwright = playwright::Playwright::initialize().await?;
     playwright.prepare()?;
     let chromium: api::BrowserType = playwright.chromium();
-    let browser: api::Browser = chromium.launcher().headless(true).launch().await?;
+    let browser: api::Browser = setting_browser(
+        &chromium,
+        proxy_url,
+        proxy_bypass,
+        proxy_username,
+        proxy_password,
+    )
+    .await?;
     let context: api::BrowserContext = browser.context_builder().build().await?;
     let page: api::Page = context.new_page().await?;
     page.goto_builder("https://google.com/").goto().await?;
@@ -30,7 +74,7 @@ pub async fn speedtest() -> Result<model::SpeedTestResultValues, playwright::Err
         .screenshot()
         .await?;
 
-    log::debug!("tested network speed.");
+    log::info!("tested network speed.");
 
     Ok(result)
 }
