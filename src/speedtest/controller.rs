@@ -1,6 +1,6 @@
-use std::path::PathBuf;
-
 use super::model;
+use playwright::api;
+use std::path::PathBuf;
 
 pub async fn speedtest() -> Result<model::SpeedTestResultValues, playwright::Error> {
     let result: model::SpeedTestResultValues = model::SpeedTestResultValues {
@@ -9,12 +9,12 @@ pub async fn speedtest() -> Result<model::SpeedTestResultValues, playwright::Err
         upload_speed_mega_bps: 0.0,
     };
 
-    let playwright = playwright::Playwright::initialize().await?;
+    let playwright: playwright::Playwright = playwright::Playwright::initialize().await?;
     playwright.prepare()?;
-    let chromium = playwright.chromium();
-    let browser = chromium.launcher().headless(true).launch().await?;
-    let context = browser.context_builder().build().await?;
-    let page = context.new_page().await?;
+    let chromium: api::BrowserType = playwright.chromium();
+    let browser: api::Browser = chromium.launcher().headless(true).launch().await?;
+    let context: api::BrowserContext = browser.context_builder().build().await?;
+    let page: api::Page = context.new_page().await?;
     page.goto_builder("https://google.com/").goto().await?;
 
     page.screenshot_builder()
