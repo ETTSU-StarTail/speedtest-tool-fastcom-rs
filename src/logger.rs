@@ -1,12 +1,14 @@
+use std::path;
+
 pub fn init() {
-    let log_path: &std::path::Path = std::path::Path::new("./log");
+    let log_path: &path::Path = path::Path::new("./log");
     if !log_path.exists() {
         std::fs::create_dir(log_path).unwrap();
     }
 
-    let base_config = fern::Dispatch::new();
+    let base_config: fern::Dispatch = fern::Dispatch::new();
 
-    let file_config = fern::Dispatch::new()
+    let file_config: fern::Dispatch = fern::Dispatch::new()
         .level(log::LevelFilter::Debug)
         .format(|out, message, record| {
             out.finish(format_args!(
@@ -25,7 +27,7 @@ pub fn init() {
             .unwrap(),
         );
 
-    let stdout_config = fern::Dispatch::new()
+    let stdout_config: fern::Dispatch = fern::Dispatch::new()
         .level(log::LevelFilter::Warn)
         .format(|out, message, record| {
             out.finish(format_args!(
@@ -43,4 +45,6 @@ pub fn init() {
         .chain(stdout_config)
         .apply()
         .unwrap();
+
+    log::debug!("logger initialized.")
 }
