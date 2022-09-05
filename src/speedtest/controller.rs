@@ -41,6 +41,7 @@ pub async fn setting_browser(
 }
 
 pub async fn speedtest(
+    convert_byte: bool,
     proxy_url: Option<String>,
     proxy_bypass: Option<String>,
     proxy_username: Option<String>,
@@ -73,7 +74,7 @@ pub async fn speedtest(
     .await?;
     let context: api::BrowserContext = browser.context_builder().build().await?;
     let page: api::Page = context.new_page().await?;
-    page.goto_builder("https://google.com/").goto().await?;
+    page.goto_builder("https://fast.com/").goto().await?;
 
     page.screenshot_builder()
         .path(PathBuf::from("./log/screenshot.png"))
