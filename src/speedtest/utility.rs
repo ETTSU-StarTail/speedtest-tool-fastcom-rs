@@ -27,11 +27,11 @@ pub fn change_order(value: f64, value_prefix: ValuePrefix) -> f64 {
 }
 
 pub fn clear_order(value: f64, units: &str) -> f64 {
-    match units {
-        "k" => value * f64::from(10).powi(ValuePrefix::k.to_exponent()),
+    match units.to_uppercase().as_str() {
+        "K" => value * f64::from(10).powi(ValuePrefix::k.to_exponent()),
         "M" => value * f64::from(10).powi(ValuePrefix::M.to_exponent()),
         "G" => value * f64::from(10).powi(ValuePrefix::G.to_exponent()),
-        "Y" => value * f64::from(10).powi(ValuePrefix::T.to_exponent()),
+        "T" => value * f64::from(10).powi(ValuePrefix::T.to_exponent()),
         _ => value,
     }
 }
