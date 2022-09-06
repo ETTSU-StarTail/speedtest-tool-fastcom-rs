@@ -73,11 +73,11 @@ async fn main() {
         .join(format!("{}_fastcom.csv", today.format("%Y-%m-%d")));
     recorder::record_to_csv(file_path.as_path(), result, arg.convert_byte).unwrap();
 
-    let yeasterday: chrono::Date<chrono::Local> = today - chrono::Duration::days(1);
+    let yesterday: chrono::Date<chrono::Local> = today - chrono::Duration::days(1);
     reporter::upload_report(
         record_path.as_path(),
         upload_path.as_path(),
-        yeasterday,
+        yesterday,
         None,
     );
 
