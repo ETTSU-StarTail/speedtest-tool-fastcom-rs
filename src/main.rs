@@ -57,12 +57,12 @@ async fn main() {
     log::trace!(
         "{}: {}",
         model::SPEEDTEST_RESULT_HEADERS[1],
-        result.download_speed_mega_bps
+        result.download_speed_bps
     );
     log::trace!(
         "{}: {}",
         model::SPEEDTEST_RESULT_HEADERS[2],
-        result.upload_speed_mega_bps
+        result.upload_speed_bps
     );
 
     let record_path: path::PathBuf = path::PathBuf::from(format!("{}/dest", arg.save_path));
@@ -71,7 +71,7 @@ async fn main() {
     let file_path: path::PathBuf = path::PathBuf::new()
         .join(record_path.clone())
         .join(format!("{}_fastcom.csv", today.format("%Y-%m-%d")));
-    recorder::record_to_csv(file_path.as_path(), result, arg.convert_byte);
+    recorder::record_to_csv(file_path.as_path(), result, arg.convert_byte).unwrap();
 
     let yeasterday: chrono::Date<chrono::Local> = today - chrono::Duration::days(1);
     reporter::upload_report(
