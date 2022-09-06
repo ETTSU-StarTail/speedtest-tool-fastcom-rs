@@ -49,21 +49,6 @@ async fn main() {
     )
     .await
     .unwrap();
-    log::trace!(
-        "{}: {}",
-        model::SPEEDTEST_RESULT_HEADERS[0],
-        result.tested_datetime
-    );
-    log::trace!(
-        "{}: {}",
-        model::SPEEDTEST_RESULT_HEADERS[1],
-        result.download_speed_bps
-    );
-    log::trace!(
-        "{}: {}",
-        model::SPEEDTEST_RESULT_HEADERS[2],
-        result.upload_speed_bps
-    );
 
     let record_path: path::PathBuf = path::PathBuf::from(format!("{}/dest", arg.save_path));
     let upload_path: path::PathBuf = path::PathBuf::from(format!("{}/dest", arg.upload_path));
