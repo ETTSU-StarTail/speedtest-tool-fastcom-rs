@@ -1,6 +1,7 @@
-use super::model;
+use super::{model, utility};
 use playwright::api;
-use std::path::PathBuf;
+use std::str::FromStr;
+use std::{net, thread, time};
 
 pub async fn setting_browser(
     browser_type: &api::BrowserType,
@@ -40,26 +41,13 @@ pub async fn setting_browser(
     Ok(browser)
 }
 
-pub async fn speedtest(
-    convert_byte: bool,
+pub async fn get_network_speed_bu_fastcom(
     proxy_url: Option<String>,
     proxy_bypass: Option<String>,
     proxy_username: Option<String>,
     proxy_password: Option<String>,
-) -> Result<model::SpeedTestResultValues, playwright::Error> {
+) -> Result<model::FastComData, playwright::Error> {
     log::info!("testing network speed.");
-
-    log::warn!("------------- [CAUTION] -----------");
-    log::warn!("Trial implement.");
-    log::warn!("Launch browser by playwright-rust.");
-    log::warn!("And capture full page screenshot.");
-    log::warn!("------------- [CAUTION] -----------");
-
-    let result: model::SpeedTestResultValues = model::SpeedTestResultValues {
-        tested_datetime: chrono::Local::now(),
-        download_speed_mega_bps: 0.0,
-        upload_speed_mega_bps: 0.0,
-    };
 
     let playwright: playwright::Playwright = playwright::Playwright::initialize().await?;
     playwright.prepare()?;
@@ -76,12 +64,119 @@ pub async fn speedtest(
     let page: api::Page = context.new_page().await?;
     page.goto_builder("https://fast.com/").goto().await?;
 
-    page.screenshot_builder()
-        .path(PathBuf::from("./log/screenshot.png"))
-        .screenshot()
-        .await?;
+    let mut fastcom_data: model::FastComData = model::FastComData::new();
 
-    log::info!("tested network speed.");
+    while !fastcom_data.is_done {
+        fastcom_data.download_speed = f64::from_str(
+            page.text_content("#speed-value", None)
+                .await?
+                .unwrap()
+                .trim(),
+        )
+        .unwrap();
+        fastcom_data.download_units = page
+            .text_content("#speed-units", None)
+            .await?
+            .unwrap()
+            .trim()
+            .to_string();
+        fastcom_data.downloaded = f64::from_str(
+            page.text_content("#down-mb-value", None)
+                .await?
+                .unwrap()
+                .trim(),
+        )
+        .unwrap();
+        fastcom_data.upload_speed = f64::from_str(
+            page.text_content("#upload-value", None)
+                .await?
+                .unwrap()
+                .trim(),
+        )
+        .unwrap();
+        fastcom_data.upload_units = page
+            .text_content("#upload-units", None)
+            .await?
+            .unwrap()
+            .trim()
+            .to_string();
+        fastcom_data.uploaded = f64::from_str(
+            page.text_content("#up-mb-value", None)
+                .await?
+                .unwrap()
+                .trim(),
+        )
+        .unwrap();
+        fastcom_data.latency = f64::from_str(
+            page.text_content("#latency-value", None)
+                .await?
+                .unwrap()
+                .trim(),
+        )
+        .unwrap();
+        fastcom_data.buffer_bloat = f64::from_str(
+            page.text_content("#buffer-bloat", None)
+                .await?
+                .unwrap()
+                .trim(),
+        )
+        .unwrap();
+        fastcom_data.user_location = page
+            .text_content("#user-location", None)
+            .await?
+            .unwrap()
+            .trim()
+            .to_string();
+        fastcom_data.user_ip =
+            net::Ipv4Addr::from_str(page.text_content("#user-ip", None).await?.unwrap().trim())
+                .unwrap();
+        fastcom_data.is_done = bool::from_str(
+            page.text_content("#speed-value.succeeded", None)
+                .await?
+                .unwrap()
+                .trim(),
+        )
+        .unwrap();
+
+        log::debug!("{:?}", fastcom_data);
+
+        thread::sleep(time::Duration::from_secs(5));
+    }
+
+    log::trace!("got network speed.");
+
+    Ok(fastcom_data)
+}
+
+pub async fn speedtest(
+    convert_byte: bool,
+    proxy_url: Option<String>,
+    proxy_bypass: Option<String>,
+    proxy_username: Option<String>,
+    proxy_password: Option<String>,
+) -> Result<model::SpeedTestResultValues, playwright::Error> {
+    let test_datetime: chrono::DateTime<chrono::Local> = chrono::Local::now();
+
+    let tested_data: model::FastComData =
+        get_network_speed_bu_fastcom(proxy_url, proxy_bypass, proxy_username, proxy_password)
+            .await?;
+
+    let mut result: model::SpeedTestResultValues = model::SpeedTestResultValues {
+        tested_datetime: test_datetime,
+        download_speed_bps: utility::clear_order(
+            tested_data.download_speed,
+            tested_data.download_units.as_str(),
+        ),
+        upload_speed_bps: utility::clear_order(
+            tested_data.upload_speed,
+            tested_data.upload_units.as_str(),
+        ),
+    };
+
+    if convert_byte {
+        result.download_speed_bps = utility::bits_to_byte(result.download_speed_bps);
+        result.upload_speed_bps = utility::bits_to_byte(result.upload_speed_bps);
+    }
 
     Ok(result)
 }
