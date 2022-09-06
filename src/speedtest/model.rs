@@ -1,11 +1,5 @@
 use std::net;
 
-pub const SPEEDTEST_RESULT_HEADERS: [&str; 3] = [
-    "Tested Datetime",
-    "Download Speed[MBit/s]",
-    "Upload Speed[MBit/s]",
-];
-
 /// speedtest result data
 #[derive(Debug, Clone)]
 pub struct SpeedTestResultValues {
