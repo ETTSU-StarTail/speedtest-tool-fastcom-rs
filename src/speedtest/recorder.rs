@@ -73,7 +73,6 @@ pub fn record_to_csv(
     check_exists_record_file(file_path, convert_byte)?;
 
     let record: model::SpeedTestResultValues = format_tested_network_data(tested_network_data);
-
     write_line_to_csv(file_path, record)?;
 
     Ok(())
