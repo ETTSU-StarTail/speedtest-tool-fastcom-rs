@@ -7,7 +7,7 @@ pub fn check_exists_record_file(
 ) -> Result<(), Box<dyn error::Error>> {
     let parent: Option<&path::Path> = file_path.parent();
 
-    if parent.is_some() {
+    if !parent.is_some() {
         let parent_dir: &path::Path = parent.unwrap();
         fs::create_dir_all(parent_dir)?;
     }
