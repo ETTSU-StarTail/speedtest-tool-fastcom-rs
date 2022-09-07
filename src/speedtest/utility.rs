@@ -41,11 +41,13 @@ pub fn clear_order(value: f64, units: &str) -> f64 {
 pub fn round_datetime(dt: chrono::DateTime<chrono::Local>) -> chrono::DateTime<chrono::Local> {
     let minute: i64 = i64::from(dt.minute());
     let second: i64 = i64::from(dt.second());
-    let minute_ones_place: i64 = minute - (minute / 10);
+    let minute_ones_place: i64 = minute % 10;
 
-    if minute_ones_place > 5 {
+    if 5 < minute_ones_place {
+        dt - chrono::Duration::minutes(minute_ones_place - 5) - chrono::Duration::seconds(second)
+    } else if minute_ones_place != 5 {
         dt - chrono::Duration::minutes(minute_ones_place) - chrono::Duration::seconds(second)
     } else {
-        dt - chrono::Duration::minutes(minute_ones_place - 5) - chrono::Duration::seconds(second)
+        dt
     }
 }
