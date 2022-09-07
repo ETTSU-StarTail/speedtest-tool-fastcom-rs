@@ -30,7 +30,12 @@ pub fn check_exists_record_file(
         };
 
         let units: &str = if convert_byte { "Byte" } else { "Bit" };
-        let mut w: csv::Writer<fs::File> = csv::Writer::from_path(file_path).unwrap();
+        let file: fs::File = fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(file_path)
+            .unwrap();
+        let mut w: csv::Writer<fs::File> = csv::Writer::from_writer(file);
         match w.write_record(&[
             "Tested Datetime",
             format!("Download Speed[M{}/s]", units).as_str(),
@@ -53,21 +58,23 @@ pub fn write_line_to_csv(
     file_path: &path::Path,
     record: model::SpeedTestResultValues,
 ) -> Result<(), Box<dyn error::Error>> {
-    let parent: Option<&path::Path> = file_path.parent();
-    if parent.is_some() && !file_path.exists() {
-        let mut w: csv::Writer<fs::File> = csv::Writer::from_path(file_path).unwrap();
+    let oo: fs::File = fs::OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(file_path)
+        .unwrap();
+    let mut w: csv::Writer<fs::File> = csv::Writer::from_writer(oo);
 
-        w.write_record(&[
-            record
-                .tested_datetime
-                .format("%Y-%m-%d %H:%m:%s")
-                .to_string()
-                .as_bytes(),
-            record.download_speed_bps.to_string().as_bytes(),
-            record.upload_speed_bps.to_string().as_bytes(),
-        ])?;
-        w.flush()?;
-    }
+    w.write_record(&[
+        record
+            .tested_datetime
+            .format("%Y-%m-%d %H:%m:%s")
+            .to_string()
+            .as_bytes(),
+        record.download_speed_bps.to_string().as_bytes(),
+        record.upload_speed_bps.to_string().as_bytes(),
+    ])?;
+    w.flush()?;
 
     Ok(())
 }
