@@ -164,13 +164,28 @@ pub async fn speedtest(
         tested_datetime: test_datetime,
         download_speed_bps: utility::clear_order(
             tested_data.download_speed,
-            tested_data.download_units.as_str(),
+            tested_data
+                .download_units
+                .chars()
+                .next()
+                .unwrap()
+                .to_string()
+                .as_str(),
         ),
         upload_speed_bps: utility::clear_order(
             tested_data.upload_speed,
-            tested_data.upload_units.as_str(),
+            tested_data
+                .upload_units
+                .chars()
+                .next()
+                .unwrap()
+                .to_string()
+                .as_str(),
         ),
     };
+
+    log::debug!("tested data(cleared order).");
+    log::debug!("{:?}", result);
 
     if convert_byte {
         result.download_speed_bps = utility::bits_to_byte(result.download_speed_bps);
