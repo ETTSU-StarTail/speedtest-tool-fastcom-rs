@@ -1,6 +1,6 @@
 use speedtest_tool_fastcom_rs::{
     logger,
-    speedtest::{controller, recorder, reporter},
+    speedtest::{controller, model, recorder, reporter},
 };
 use std::path;
 
@@ -43,7 +43,7 @@ async fn main() {
 
     let arg: Arguments = argh::from_env();
 
-    let result = controller::speedtest(
+    let result: model::SpeedTestResultValues = match controller::speedtest(
         arg.convert_byte,
         arg.proxy_url,
         arg.proxy_bypass,
@@ -51,7 +51,14 @@ async fn main() {
         arg.proxy_password,
     )
     .await
-    .unwrap();
+    {
+        Ok(value) => value,
+        Err(error) => {
+            log::error!("Failed speedtest.");
+            log::error!("{:?}", error);
+            panic!();
+        }
+    };
 
     let record_path: path::PathBuf = path::PathBuf::from(format!("{}/dest", arg.save_path));
     let upload_path: path::PathBuf = path::PathBuf::from(format!("{}/dest", arg.upload_path));
@@ -59,16 +66,29 @@ async fn main() {
     let file_path: path::PathBuf = path::PathBuf::new()
         .join(record_path.clone())
         .join(format!("{}_fastcom.csv", today.format("%Y-%m-%d")));
-    recorder::record_to_csv(file_path.as_path(), result, arg.convert_byte).unwrap();
+
+    match recorder::record_to_csv(file_path.as_path(), result, arg.convert_byte) {
+        Ok(_) => log::info!("Success record to csv."),
+        Err(error) => {
+            log::error!("Failed record to csv.");
+            log::error!("{:?}", error);
+        }
+    }
 
     let yesterday: chrono::Date<chrono::Local> = today - chrono::Duration::days(1);
-    reporter::upload_report(
+
+    match reporter::upload_report(
         record_path.as_path(),
         upload_path.as_path(),
         yesterday,
         arg.is_force,
-    )
-    .unwrap();
+    ) {
+        Ok(()) => log::info!("Success upload the report."),
+        Err(error) => {
+            log::error!("Failed upload the report.");
+            log::error!("{:?}", error);
+        }
+    }
 
     log::info!("speedtest tool end.");
 }
