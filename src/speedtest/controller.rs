@@ -127,9 +127,7 @@ pub async fn get_network_speed_bu_fastcom(
             .unwrap()
             .trim()
             .to_string();
-        fastcom_data.user_ip =
-            net::Ipv4Addr::from_str(page.text_content("#user-ip", None).await?.unwrap().trim())
-                .unwrap();
+        fastcom_data.user_ip = page.text_content("#user-ip", None).await?.unwrap();
         fastcom_data.is_done = bool::from_str(
             page.text_content("#speed-value.succeeded", None)
                 .await?

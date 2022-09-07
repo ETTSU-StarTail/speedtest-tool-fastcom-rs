@@ -1,5 +1,3 @@
-use std::net;
-
 /// speedtest result data
 #[derive(Debug, Clone)]
 pub struct SpeedTestResultValues {
@@ -35,7 +33,7 @@ pub struct FastComData {
     pub latency: f64,
     pub buffer_bloat: f64,
     pub user_location: String,
-    pub user_ip: net::Ipv4Addr,
+    pub user_ip: String,
 }
 impl FastComData {
     pub fn new() -> Self {
@@ -50,7 +48,7 @@ impl FastComData {
             latency: 0.0,
             buffer_bloat: 0.0,
             user_location: String::from(""),
-            user_ip: net::Ipv4Addr::new(0, 0, 0, 0),
+            user_ip: String::from(""),
         }
     }
 }
