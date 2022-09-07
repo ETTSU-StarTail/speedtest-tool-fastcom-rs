@@ -89,7 +89,7 @@ async fn main() {
     let yesterday: chrono::Date<chrono::Local> = today - chrono::Duration::days(1);
 
     match reporter::upload_report(
-        save_path.as_path(),
+        record_path.as_path(),
         upload_path.as_path(),
         yesterday,
         arg.is_force,
