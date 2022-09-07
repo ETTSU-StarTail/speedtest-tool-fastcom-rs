@@ -37,17 +37,20 @@ pub fn upload_report(
         .join(result_file_name.clone() + ".csv");
     let save_report_file_path: path::PathBuf = path::PathBuf::new()
         .join(save_dir_path)
-        .join(result_file_name.clone() + "html");
+        .join(result_file_name.clone() + ".html");
 
     if save_result_file_path.exists() {
+        fs::copy(save_result_file_path.clone(), upload_dir_path)?;
+    } else {
         log::warn!("result file not found.");
-    } else if save_report_file_path.exists() || is_force {
+    }
+
+    if save_report_file_path.exists() || is_force {
         make_network_speed_graph(
             save_result_file_path.as_path(),
             save_report_file_path.as_path(),
         )?;
 
-        fs::copy(save_result_file_path, upload_dir_path)?;
         fs::copy(save_report_file_path, upload_dir_path)?;
     } else {
         log::warn!("Not make report. Because exists report or is_force flag is false.")
