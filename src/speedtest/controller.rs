@@ -115,7 +115,7 @@ pub async fn get_network_speed_bu_fastcom(
         )
         .unwrap();
         fastcom_data.buffer_bloat = f64::from_str(
-            page.text_content("#buffer-bloat", None)
+            page.text_content("#bufferbloat-value", None)
                 .await?
                 .unwrap()
                 .trim(),
