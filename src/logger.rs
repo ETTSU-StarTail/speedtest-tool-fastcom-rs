@@ -10,6 +10,7 @@ pub fn init() {
 
     let file_config: fern::Dispatch = fern::Dispatch::new()
         .level(log::LevelFilter::Debug)
+        .level_for("playwright", log::LevelFilter::Info)
         .format(|out, message, record| {
             out.finish(format_args!(
                 "{} {} - {} -> {}",
@@ -29,6 +30,7 @@ pub fn init() {
 
     let stdout_config: fern::Dispatch = fern::Dispatch::new()
         .level(log::LevelFilter::Info)
+        .level_for("playwright", log::LevelFilter::Warn)
         .format(|out, message, record| {
             out.finish(format_args!(
                 "{} {} - {} -> {}",
