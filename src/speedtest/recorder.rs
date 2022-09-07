@@ -90,6 +90,9 @@ pub fn format_tested_network_data(
     record.upload_speed_bps =
         utility::change_order(record.upload_speed_bps, utility::ValuePrefix::M);
 
+    log::debug!("data for record to csv.");
+    log::debug!("{:?}", record);
+
     return record;
 }
 
