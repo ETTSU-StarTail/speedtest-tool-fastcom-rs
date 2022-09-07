@@ -1,6 +1,6 @@
 use speedtest_tool_fastcom_rs::{
     logger,
-    speedtest::{controller, model, recorder, reporter},
+    speedtest::{controller, recorder, reporter},
 };
 use std::path;
 
@@ -28,6 +28,9 @@ struct Arguments {
     /// bit to byte
     #[argh(switch)]
     convert_byte: bool,
+    /// force upload the report.
+    #[argh(switch)]
+    is_force: bool,
 }
 
 #[tokio::main]
@@ -63,8 +66,9 @@ async fn main() {
         record_path.as_path(),
         upload_path.as_path(),
         yesterday,
-        None,
-    );
+        arg.is_force,
+    )
+    .unwrap();
 
     log::info!("speedtest tool end.");
 }
