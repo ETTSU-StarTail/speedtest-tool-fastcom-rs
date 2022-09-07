@@ -148,7 +148,6 @@ pub async fn get_network_speed_bu_fastcom(
 }
 
 pub async fn speedtest(
-    convert_byte: bool,
     proxy_url: Option<String>,
     proxy_bypass: Option<String>,
     proxy_username: Option<String>,
@@ -160,7 +159,7 @@ pub async fn speedtest(
         get_network_speed_bu_fastcom(proxy_url, proxy_bypass, proxy_username, proxy_password)
             .await?;
 
-    let mut result: model::SpeedTestResultValues = model::SpeedTestResultValues {
+    let result: model::SpeedTestResultValues = model::SpeedTestResultValues {
         tested_datetime: test_datetime,
         download_speed_bps: utility::clear_order(
             tested_data.download_speed,
@@ -186,11 +185,6 @@ pub async fn speedtest(
 
     log::debug!("tested data(cleared order).");
     log::debug!("{:?}", result);
-
-    if convert_byte {
-        result.download_speed_bps = utility::bits_to_byte(result.download_speed_bps);
-        result.upload_speed_bps = utility::bits_to_byte(result.upload_speed_bps);
-    }
 
     Ok(result)
 }

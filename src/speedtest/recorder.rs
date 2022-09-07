@@ -81,10 +81,20 @@ pub fn write_line_to_csv(
 
 pub fn format_tested_network_data(
     tested_network_data: model::SpeedTestResultValues,
+    convert_byte: bool,
+    round_datetime: bool,
 ) -> model::SpeedTestResultValues {
     let mut record: model::SpeedTestResultValues = tested_network_data.clone();
 
-    record.tested_datetime = utility::round_datetime(record.tested_datetime);
+    if round_datetime {
+        record.tested_datetime = utility::round_datetime(record.tested_datetime)
+    };
+
+    if convert_byte {
+        record.download_speed_bps = utility::bits_to_byte(record.download_speed_bps);
+        record.upload_speed_bps = utility::bits_to_byte(record.upload_speed_bps);
+    }
+
     record.download_speed_bps =
         utility::change_order(record.download_speed_bps, utility::ValuePrefix::M);
     record.upload_speed_bps =
@@ -100,12 +110,14 @@ pub fn record_to_csv(
     file_path: &path::Path,
     tested_network_data: model::SpeedTestResultValues,
     convert_byte: bool,
+    round_datetime: bool,
 ) -> Result<(), Box<dyn error::Error>> {
     log::info!("record to csv: {}", file_path.display());
 
     check_exists_record_file(file_path, convert_byte)?;
 
-    let record: model::SpeedTestResultValues = format_tested_network_data(tested_network_data);
+    let record: model::SpeedTestResultValues =
+        format_tested_network_data(tested_network_data, convert_byte, round_datetime);
     write_line_to_csv(file_path, record)?;
 
     Ok(())

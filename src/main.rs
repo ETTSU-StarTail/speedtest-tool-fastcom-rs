@@ -32,6 +32,9 @@ struct Arguments {
     /// force upload the report.
     #[argh(switch)]
     is_force: bool,
+    /// round the datetime.
+    #[argh(switch)]
+    round_datetime: bool,
 }
 
 #[tokio::main]
@@ -45,7 +48,6 @@ async fn main() {
     let arg: Arguments = argh::from_env();
 
     let result: model::SpeedTestResultValues = match controller::speedtest(
-        arg.convert_byte,
         arg.proxy_url,
         arg.proxy_bypass,
         arg.proxy_username,
@@ -75,7 +77,12 @@ async fn main() {
     let file_path: path::PathBuf =
         record_path.join(format!("{}_fastcom.csv", today.format("%Y-%m-%d")));
 
-    match recorder::record_to_csv(file_path.as_path(), result, arg.convert_byte) {
+    match recorder::record_to_csv(
+        file_path.as_path(),
+        result,
+        arg.convert_byte,
+        arg.round_datetime,
+    ) {
         Ok(_) => {
             log::info!("Success record to csv.");
         }
