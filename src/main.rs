@@ -1,8 +1,9 @@
+use path_clean::PathClean;
 use speedtest_tool_fastcom_rs::{
     logger,
     speedtest::{controller, model, recorder, reporter},
 };
-use std::{fs, path};
+use std::{env, path};
 
 /// network proxy settings.
 #[derive(argh::FromArgs)]
@@ -60,24 +61,14 @@ async fn main() {
         }
     };
 
-    let save_path: path::PathBuf = match fs::canonicalize(arg.save_path) {
-        Ok(value) => path::PathBuf::from(value.display().to_string().replace(r"\\?\", "")),
-        Err(error) => {
-            log::error!("Failed convert to absolute path from relation path.");
-            log::error!("{:?}", error);
-            panic!();
-        }
-    };
-
-    let upload_path: path::PathBuf = match fs::canonicalize(arg.upload_path) {
-        Ok(value) => path::PathBuf::from(value.display().to_string().replace(r"\\?\", "")),
-        Err(error) => {
-            log::error!("Failed convert to absolute path from relation path.");
-            log::error!("{:?}", error);
-            panic!();
-        }
-    };
-
+    let mut save_path: path::PathBuf = path::PathBuf::from(arg.save_path);
+    if save_path.is_relative() && !save_path.starts_with(r"\\") {
+        save_path = env::current_dir().unwrap().join(save_path).clean();
+    }
+    let mut upload_path: path::PathBuf = path::PathBuf::from(arg.upload_path);
+    if upload_path.is_relative() && !upload_path.starts_with(r"\\") {
+        upload_path = env::current_dir().unwrap().join(upload_path).clean();
+    }
     let record_path: path::PathBuf = save_path.join("dest");
 
     let today: chrono::Date<chrono::Local> = chrono::Local::today();
@@ -98,7 +89,7 @@ async fn main() {
     let yesterday: chrono::Date<chrono::Local> = today - chrono::Duration::days(1);
 
     match reporter::upload_report(
-        record_path.as_path(),
+        save_path.as_path(),
         upload_path.as_path(),
         yesterday,
         arg.is_force,

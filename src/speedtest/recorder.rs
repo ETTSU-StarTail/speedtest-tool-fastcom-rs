@@ -7,21 +7,42 @@ pub fn check_exists_record_file(
 ) -> Result<(), Box<dyn error::Error>> {
     let parent: Option<&path::Path> = file_path.parent();
 
-    if !parent.is_some() {
+    if parent.is_some() && !parent.unwrap().exists() {
         let parent_dir: &path::Path = parent.unwrap();
-        fs::create_dir_all(parent_dir)?;
+        match fs::create_dir_all(parent_dir) {
+            Ok(()) => log::info!("Success create directory: {}", parent_dir.display()),
+            Err(error) => {
+                log::error!("Failed create directory.");
+                log::error!("{:?}", error);
+                panic!();
+            }
+        };
     }
 
     if !file_path.exists() {
-        let units: &str = if convert_byte { "Byte" } else { "Bit" };
-        fs::File::create(file_path)?;
+        match fs::File::create(file_path) {
+            Ok(_) => log::info!("Success create file: {}", file_path.display()),
+            Err(error) => {
+                log::error!("Failed create file.");
+                log::error!("{:?}", error);
+                panic!();
+            }
+        };
 
+        let units: &str = if convert_byte { "Byte" } else { "Bit" };
         let mut w: csv::Writer<fs::File> = csv::Writer::from_path(file_path).unwrap();
-        w.write_record(&[
+        match w.write_record(&[
             "Tested Datetime",
             format!("Download Speed[M{}/s]", units).as_str(),
             format!("Upload Speed[M{}/s]", units).as_str(),
-        ])?;
+        ]) {
+            Ok(_) => log::info!("Success record to file: {}", file_path.display()),
+            Err(error) => {
+                log::error!("Failed record to file.");
+                log::error!("{:?}", error);
+                panic!();
+            }
+        };
         w.flush()?;
     }
 
