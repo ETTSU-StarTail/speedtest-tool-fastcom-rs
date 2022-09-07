@@ -68,7 +68,7 @@ pub fn write_line_to_csv(
     w.write_record(&[
         record
             .tested_datetime
-            .format("%Y-%m-%d %H:%m:%s")
+            .format("%Y-%m-%d %H:%M:%S")
             .to_string()
             .as_bytes(),
         record.download_speed_bps.to_string().as_bytes(),
