@@ -70,6 +70,8 @@ pub fn record_to_csv(
     tested_network_data: model::SpeedTestResultValues,
     convert_byte: bool,
 ) -> Result<(), Box<dyn error::Error>> {
+    log::info!("record to csv: {}", file_path.display());
+
     check_exists_record_file(file_path, convert_byte)?;
 
     let record: model::SpeedTestResultValues = format_tested_network_data(tested_network_data);
