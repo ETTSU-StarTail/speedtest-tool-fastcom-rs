@@ -71,8 +71,8 @@ pub fn write_line_to_csv(
             .format("%Y-%m-%d %H:%M:%S")
             .to_string()
             .as_bytes(),
-        record.download_speed_bps.to_string().as_bytes(),
-        record.upload_speed_bps.to_string().as_bytes(),
+        format!("{:.1}", record.download_speed_bps).as_bytes(),
+        format!("{:.1}", record.upload_speed_bps).as_bytes(),
     ])?;
     w.flush()?;
 
