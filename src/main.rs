@@ -2,7 +2,7 @@ use speedtest_tool_fastcom_rs::{
     logger,
     speedtest::{controller, model, recorder, reporter},
 };
-use std::path;
+use std::{fs, path};
 
 /// network proxy settings.
 #[derive(argh::FromArgs)]
@@ -60,18 +60,38 @@ async fn main() {
         }
     };
 
-    let record_path: path::PathBuf = path::PathBuf::from(format!("{}/dest", arg.save_path));
-    let upload_path: path::PathBuf = path::PathBuf::from(format!("{}/dest", arg.upload_path));
+    let save_path: path::PathBuf = match fs::canonicalize(arg.save_path) {
+        Ok(value) => path::PathBuf::from(value.display().to_string().replace(r"\\?\", "")),
+        Err(error) => {
+            log::error!("Failed convert to absolute path from relation path.");
+            log::error!("{:?}", error);
+            panic!();
+        }
+    };
+
+    let upload_path: path::PathBuf = match fs::canonicalize(arg.upload_path) {
+        Ok(value) => path::PathBuf::from(value.display().to_string().replace(r"\\?\", "")),
+        Err(error) => {
+            log::error!("Failed convert to absolute path from relation path.");
+            log::error!("{:?}", error);
+            panic!();
+        }
+    };
+
+    let record_path: path::PathBuf = save_path.join("dest");
+
     let today: chrono::Date<chrono::Local> = chrono::Local::today();
-    let file_path: path::PathBuf = path::PathBuf::new()
-        .join(record_path.clone())
-        .join(format!("{}_fastcom.csv", today.format("%Y-%m-%d")));
+    let file_path: path::PathBuf =
+        record_path.join(format!("{}_fastcom.csv", today.format("%Y-%m-%d")));
 
     match recorder::record_to_csv(file_path.as_path(), result, arg.convert_byte) {
-        Ok(_) => log::info!("Success record to csv."),
+        Ok(_) => {
+            log::info!("Success record to csv.");
+        }
         Err(error) => {
             log::error!("Failed record to csv.");
             log::error!("{:?}", error);
+            panic!();
         }
     }
 
@@ -87,6 +107,7 @@ async fn main() {
         Err(error) => {
             log::error!("Failed upload the report.");
             log::error!("{:?}", error);
+            panic!();
         }
     }
 
