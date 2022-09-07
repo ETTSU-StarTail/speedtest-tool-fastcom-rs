@@ -13,4 +13,10 @@ Cargo.lock
 # Added by cargo
 
 /target
+
+# Added ettsu
+
 /log
+.vscode
+/dest
+/dist
