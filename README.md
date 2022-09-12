@@ -1,4 +1,5 @@
 # speedtest-tool-fastcom-rs
+
 Rust 実装の speedtest_tool_fastcom
 
 ## 変更・追加要素
@@ -10,3 +11,17 @@ Rust 実装の speedtest_tool_fastcom
   - --proxy_bypass
   - --proxy_username
   - --proxy_password
+
+## Usage
+
+use proxy.
+
+```powershell
+path\to\speedtest-tool-fastcom-rs.exe --upload-path \\NSD18005\local-openwork --save-path .\log --proxy-url http://vproxy.cns.tayoreru.com:8080
+```
+
+not use proxy.
+
+```powershell
+path\to\speedtest-tool-fastcom-rs.exe --upload-path \\NSD18005\local-openwork --save-path .\log --proxy-url
+```
