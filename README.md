@@ -17,11 +17,11 @@ Rust 実装の speedtest_tool_fastcom
 use proxy.
 
 ```powershell
-path\to\speedtest-tool-fastcom-rs.exe --upload-path \\NSD18005\local-openwork --save-path .\log --proxy-url http://vproxy.cns.tayoreru.com:8080
+path\to\speedtest-tool-fastcom-rs.exe --upload-path <any path> --save-path <any path> --proxy-url <proxy url http(s)//host:port>
 ```
 
 not use proxy.
 
 ```powershell
-path\to\speedtest-tool-fastcom-rs.exe --upload-path \\NSD18005\local-openwork --save-path .\log --proxy-url
+path\to\speedtest-tool-fastcom-rs.exe --upload-path <any path> --save-path <any path>
 ```
