@@ -1,6 +1,6 @@
 # speedtest-tool-fastcom-rs
 
-Rust 実装の speedtest_tool_fastcom
+Rust で実装された fast.com によるネットワーク計測ツール
 
 ## 変更・追加要素
 
